@@ -110,7 +110,9 @@ class SqliteQueryRewriter
         $sql = preg_replace('/COLLATE\s*=\s*\w+/i', '', $sql);
         $sql = preg_replace('/CHARACTER\s+SET\s+\w+/i', '', $sql);
 
-        // Remove column comments
+        // Remove column and table comments
+        $sql = preg_replace('/COMMENT\s*=\s*\'[^\']*\'/i', '', $sql);
+        $sql = preg_replace('/COMMENT\s*=\s*"[^"]*"/i', '', $sql);
         $sql = preg_replace('/COMMENT\s+\'[^\']*\'/i', '', $sql);
         $sql = preg_replace('/COMMENT\s+"[^"]*"/i', '', $sql);
 

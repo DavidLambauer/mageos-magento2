@@ -46,17 +46,27 @@ class Website extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     public function readAllWebsites()
     {
-        $websites = [];
-        $tableName = $this->getMainTable();
-        $select = $this->getConnection()
-            ->select()
-            ->from($tableName);
+        try {
+            $websites = [];
+            $tableName = $this->getMainTable();
+            $select = $this->getConnection()
+                ->select()
+                ->from($tableName);
 
-        foreach ($this->getConnection()->fetchAll($select) as $websiteData) {
-            $websites[$websiteData['code']] = $websiteData;
+            foreach ($this->getConnection()->fetchAll($select) as $websiteData) {
+                $websites[$websiteData['code']] = $websiteData;
+            }
+
+            return $websites;
+        } catch (\Exception $e) {
+            // During fresh install, store_website table doesn't exist yet
+            if (strpos($e->getMessage(), 'no such table') !== false ||
+                strpos($e->getMessage(), 'store_website') !== false ||
+                strpos($e->getMessage(), 'doesn\'t exist') !== false) {
+                return [];
+            }
+            throw $e;
         }
-
-        return $websites;
     }
 
     /**
