@@ -142,8 +142,10 @@ class SqliteQueryRewriter
         // Remove KEY keyword after UNIQUE (SQLite: UNIQUE, MySQL: UNIQUE KEY)
         $sql = preg_replace('/UNIQUE\s+KEY/i', 'UNIQUE', $sql);
         // Remove INDEX definitions from CREATE TABLE (SQLite doesn't allow inline indexes)
-        // Pattern: ,\nINDEX `name` (`columns`)
+        // Remove regular INDEX: ,\nINDEX `name` (`columns`)
         $sql = preg_replace('/,\s*INDEX\s+`[^`]+`\s*\([^)]+\)/i', '', $sql);
+        // Remove FULLTEXT INDEX (SQLite doesn't support FULLTEXT)
+        $sql = preg_replace('/,\s*FULLTEXT\s+INDEX\s+`[^`]+`\s*\([^)]+\)/i', '', $sql);
 
         // SHOW commands → return empty/dummy results
         if (preg_match('/^\s*SHOW\s+/i', $sql)) {
