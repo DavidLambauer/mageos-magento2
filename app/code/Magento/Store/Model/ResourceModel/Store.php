@@ -166,10 +166,21 @@ class Store extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     public function readAllStores()
     {
-        $select = $this->getConnection()
-            ->select()
-            ->from($this->getTable($this->getMainTable()));
-        return $this->getConnection()->fetchAll($select);
+        try {
+            $select = $this->getConnection()
+                ->select()
+                ->from($this->getTable($this->getMainTable()));
+            return $this->getConnection()->fetchAll($select);
+        } catch (\Exception $e) {
+            // During fresh install, store table doesn't exist yet
+            // This is called during InstallCommand initialization before schema creation
+            if (strpos($e->getMessage(), 'no such table') !== false ||
+                strpos($e->getMessage(), 'store') !== false ||
+                strpos($e->getMessage(), 'doesn\'t exist') !== false) {
+                return [];
+            }
+            throw $e;
+        }
     }
 
     /**
