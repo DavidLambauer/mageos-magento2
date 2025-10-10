@@ -154,8 +154,8 @@ class SqliteQueryRewriter
             $sql = 'SELECT NULL LIMIT 0';
         }
 
-        // SET commands with variables → skip (SQLite doesn't support user/system variables)
-        if (preg_match('/^\s*SET\s+(@|@@)/i', $sql)) {
+        // SET commands → skip (SQLite doesn't support user/system variables or session settings like UNIQUE_CHECKS)
+        if (preg_match('/^\s*SET\s+/i', $sql)) {
             // Return dummy query that does nothing
             $sql = 'SELECT NULL LIMIT 0';
         }
