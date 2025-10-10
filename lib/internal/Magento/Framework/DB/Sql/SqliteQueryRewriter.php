@@ -34,7 +34,9 @@ class SqliteQueryRewriter
         'ON DUPLICATE KEY UPDATE',
         'STRAIGHT_JOIN',
         'SQL_CALC_FOUND_ROWS',
-        'SHOW'
+        'SHOW',
+        'SET @',
+        '@@'
     ];
 
     /**
@@ -131,6 +133,12 @@ class SqliteQueryRewriter
         if (preg_match('/^\s*SHOW\s+/i', $sql)) {
             // Replace SHOW with SELECT that returns empty result
             // This is a workaround - MySQL-specific SHOW commands aren't needed for dev
+            $sql = 'SELECT NULL LIMIT 0';
+        }
+
+        // SET commands with variables → skip (SQLite doesn't support user/system variables)
+        if (preg_match('/^\s*SET\s+(@|@@)/i', $sql)) {
+            // Return dummy query that does nothing
             $sql = 'SELECT NULL LIMIT 0';
         }
 
