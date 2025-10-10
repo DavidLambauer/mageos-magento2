@@ -106,8 +106,15 @@ class SqlVersionProvider
      */
     private function getVersionString(string $resource): string
     {
-        $pattern = sprintf('/(%s)/', implode('|', $this->supportedVersionPatterns));
         $sqlVersionOutput = $this->fetchSqlVersion($resource);
+
+        // SQLite: version format is just "3.x.y" - return directly without pattern matching
+        if (preg_match('/^3\.\d+\.\d+/', $sqlVersionOutput)) {
+            return $sqlVersionOutput;
+        }
+
+        // MySQL/MariaDB: validate against supported patterns
+        $pattern = sprintf('/(%s)/', implode('|', $this->supportedVersionPatterns));
         preg_match($pattern, $sqlVersionOutput, $match);
         if (empty($match)) {
             throw new ConnectionException(
