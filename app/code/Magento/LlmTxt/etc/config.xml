@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Mage-OS, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <llmtxt>
+            <general>
+                <enabled>0</enabled>
+                <cache_lifetime>86400</cache_lifetime>
+            </general>
+            <content>
+                <auto_include_categories>1</auto_include_categories>
+                <auto_include_cms_pages>1</auto_include_cms_pages>
+                <featured_products_count>5</featured_products_count>
+                <max_description_length>100</max_description_length>
+            </content>
+        </llmtxt>
+    </default>
+</config>

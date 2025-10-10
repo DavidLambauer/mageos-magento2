@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Mage-OS, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="llmtxt" translate="label" sortOrder="400">
+            <label>LLM.txt</label>
+        </tab>
+        <section id="llmtxt" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>LLM.txt Configuration</label>
+            <tab>llmtxt</tab>
+            <resource>Magento_LlmTxt::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+                <comment><![CDATA[
+                    <p>LLM.txt is a standard for helping AI systems understand your store's content.</p>
+                    <p>Learn more at <a href="https://llmstxt.org" target="_blank">llmstxt.org</a></p>
+                ]]></comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable LLM.txt</label>
+                    <comment>When enabled, your store will serve an llms.txt file at /llms.txt</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="site_name" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Site Name</label>
+                    <comment>Leave empty to use store name. This appears as the H1 heading in llms.txt</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="site_description" translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Site Description</label>
+                    <comment>A brief description of your store (appears as blockquote). Keep it concise.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="custom_content" translate="label comment" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Markdown Content</label>
+                    <comment><![CDATA[Add custom markdown content that will appear after the site description. You can use markdown formatting.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="cache_lifetime" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cache Lifetime (seconds)</label>
+                    <comment>How long to cache the generated llms.txt content. Default: 86400 (24 hours)</comment>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="content" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Automatic Content Generation</label>
+                <comment>Configure which content is automatically included in llms.txt</comment>
+                <field id="auto_include_categories" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auto-Include Categories</label>
+                    <comment>Automatically include top-level categories in llms.txt</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="auto_include_cms_pages" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auto-Include CMS Pages</label>
+                    <comment>Automatically include important CMS pages (About, Contact, etc.)</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="featured_products_count" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Featured Products Count</label>
+                    <comment>Number of featured products to include (0 to disable, max 10)</comment>
+                    <validate>validate-number validate-number-range number-range-0-10</validate>
+                </field>
+                <field id="max_description_length" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Description Length</label>
+                    <comment>Maximum characters for descriptions (recommended: 50-150)</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+            </group>
+            <group id="info" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Information</label>
+                <comment><![CDATA[
+                    <div style="padding: 10px; background: #f5f5f5; border-left: 3px solid #eb5202;">
+                        <h3 style="margin-top:0;">What is LLM.txt?</h3>
+                        <p>LLM.txt is a proposed standard for helping AI systems (like ChatGPT, Claude, etc.) understand your website better.</p>
+                        <p>It's similar to robots.txt, but instead of blocking access, it <strong>guides AI</strong> to your most important content.</p>
+
+                        <h4>Best Practices:</h4>
+                        <ul>
+                            <li>Keep total content under 2,000 tokens (~1,500 words)</li>
+                            <li>Include your most important pages and products</li>
+                            <li>Write clear, concise descriptions</li>
+                            <li>Update when you add major content</li>
+                        </ul>
+
+                        <h4>View Your LLM.txt:</h4>
+                        <p>After saving and flushing cache, visit: <code>https://yourdomain.com/llms.txt</code></p>
+
+                        <p><a href="https://llmstxt.org" target="_blank">Learn more about the LLM.txt standard →</a></p>
+                    </div>
+                ]]></comment>
+            </group>
+        </section>
+    </system>
+</config>

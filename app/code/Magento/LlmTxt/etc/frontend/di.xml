@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Mage-OS, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="llmstxtResultPage" type="Magento\Framework\View\Result\Page">
+        <arguments>
+            <argument name="template" xsi:type="string">RunAsRoot_LlmTxt::llmstxt.phtml</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="llmstxtResultPageFactory" type="Magento\Framework\View\Result\PageFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">llmstxtResultPage</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\LlmTxt\Controller\Index\Index">
+        <arguments>
+            <argument name="resultPageFactory" xsi:type="object">llmstxtResultPageFactory</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\App\RouterList">
+        <arguments>
+            <argument name="routerList" xsi:type="array">
+                <item name="llmstxt" xsi:type="array">
+                    <item name="class" xsi:type="string">Magento\LlmTxt\Controller\Router\LlmsTxtRouter</item>
+                    <item name="disable" xsi:type="boolean">false</item>
+                    <item name="sortOrder" xsi:type="string">22</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>
