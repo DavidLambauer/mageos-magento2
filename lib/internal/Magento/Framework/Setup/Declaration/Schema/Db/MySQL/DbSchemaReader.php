@@ -300,14 +300,33 @@ class DbSchemaReader implements DbSchemaReaderInterface
             foreach ($indexData as $index) {
                 // Only process PRIMARY and UNIQUE constraints
                 if ($index['INDEX_TYPE'] === 'primary' || $index['INDEX_TYPE'] === 'unique') {
-                    $constraintDef = [
-                        'name' => $index['KEY_NAME'],
-                        'columns' => $index['COLUMNS_LIST'],
-                        'type' => Constraint::TYPE,
-                    ];
+                    // Format columns as array for multi-column constraints
+                    $columns = is_array($index['COLUMNS_LIST'])
+                        ? $index['COLUMNS_LIST']
+                        : explode(',', $index['COLUMNS_LIST']);
 
-                    $constraint = $this->definitionAggregator->fromDefinition($constraintDef);
-                    $constraints[$constraint['name']] = $constraint;
+                    // Process each column in the constraint
+                    foreach ($columns as $columnName) {
+                        $columnName = trim($columnName);
+
+                        // Match MySQL's SHOW INDEXES format (exact case sensitivity)
+                        $constraintDef = [
+                            'Key_name' => $index['KEY_NAME'],  // MySQL uses Key_name (K cap, rest lower)
+                            'Column_name' => $columnName,       // MySQL uses Column_name (C cap, rest lower)
+                            'type' => Constraint::TYPE,
+                        ];
+
+                        $constraint = $this->definitionAggregator->fromDefinition($constraintDef);
+
+                        if (!isset($constraints[$constraint['name']])) {
+                            $constraints[$constraint['name']] = [];
+                        }
+
+                        $constraints[$constraint['name']] = array_replace_recursive(
+                            $constraints[$constraint['name']],
+                            $constraint
+                        );
+                    }
                 }
             }
 
