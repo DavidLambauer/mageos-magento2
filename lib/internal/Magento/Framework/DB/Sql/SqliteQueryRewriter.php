@@ -114,8 +114,10 @@ class SqliteQueryRewriter
         $sql = preg_replace('/COMMENT\s+\'[^\']*\'/i', '', $sql);
         $sql = preg_replace('/COMMENT\s+"[^"]*"/i', '', $sql);
 
-        // Replace AUTO_INCREMENT with AUTOINCREMENT
-        $sql = preg_replace('/\bAUTO_INCREMENT\b/i', 'AUTOINCREMENT', $sql);
+        // Remove AUTO_INCREMENT - SQLite uses ROWID auto-increment by default
+        // Note: SQLite's AUTOINCREMENT has different syntax (INTEGER PRIMARY KEY AUTOINCREMENT)
+        // and is not recommended for performance. ROWID auto-increments without it.
+        $sql = preg_replace('/\bAUTO_INCREMENT\b/i', '', $sql);
 
         // Remove UNSIGNED
         $sql = preg_replace('/\bUNSIGNED\b/i', '', $sql);
