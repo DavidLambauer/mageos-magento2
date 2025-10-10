@@ -58,6 +58,7 @@ class DbSchemaReader implements DbSchemaReaderInterface
         if ($adapter instanceof \Magento\Framework\DB\Adapter\Pdo\Sqlite) {
             return [
                 'engine' => 'sqlite',
+                'charset' => '',
                 'collation' => '',
                 'comment' => '',
             ];
@@ -193,10 +194,15 @@ class DbSchemaReader implements DbSchemaReaderInterface
             $indexData = $adapter->getIndexList($tableName);
 
             foreach ($indexData as $index) {
+                // Skip PRIMARY and UNIQUE - those are handled by readConstraints()
+                if ($index['INDEX_TYPE'] === 'primary' || $index['INDEX_TYPE'] === 'unique') {
+                    continue;
+                }
+
                 $processedIndex = [
                     'name' => $index['KEY_NAME'],
                     'columns' => $index['COLUMNS_LIST'],
-                    'type' => $index['INDEX_TYPE'],
+                    'type' => $index['INDEX_TYPE'],  // Should be 'index' only now
                 ];
 
                 $indexes[$index['KEY_NAME']] = $this->definitionAggregator->fromDefinition($processedIndex);
