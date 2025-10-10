@@ -176,6 +176,25 @@ class DbSchemaReader implements DbSchemaReaderInterface
     {
         $indexes = [];
         $adapter = $this->resourceConnection->getConnection($resource);
+
+        // SQLite uses PRAGMA index_list and index_info
+        if ($adapter instanceof \Magento\Framework\DB\Adapter\Pdo\Sqlite) {
+            $indexData = $adapter->getIndexList($tableName);
+
+            foreach ($indexData as $index) {
+                $processedIndex = [
+                    'name' => $index['KEY_NAME'],
+                    'columns' => $index['COLUMNS_LIST'],
+                    'type' => $index['INDEX_TYPE'],
+                ];
+
+                $indexes[$index['KEY_NAME']] = $this->definitionAggregator->fromDefinition($processedIndex);
+            }
+
+            return $indexes;
+        }
+
+        // MySQL/MariaDB
         $condition = sprintf('`Non_unique` = 1');
         $sql = sprintf('SHOW INDEXES FROM `%s` WHERE %s', $tableName, $condition);
         $stmt = $adapter->query($sql);
@@ -207,6 +226,30 @@ class DbSchemaReader implements DbSchemaReaderInterface
      */
     public function readReferences($tableName, $resource)
     {
+        $adapter = $this->resourceConnection->getConnection($resource);
+
+        // SQLite uses getForeignKeys()
+        if ($adapter instanceof \Magento\Framework\DB\Adapter\Pdo\Sqlite) {
+            $foreignKeys = $adapter->getForeignKeys($tableName);
+            $definition = [
+                'type' => 'reference',
+                'foreign_keys' => []
+            ];
+
+            foreach ($foreignKeys as $fkData) {
+                $definition['foreign_keys'][] = [
+                    'name' => $fkData['FK_NAME'],
+                    'column' => $fkData['COLUMN_NAME'],
+                    'referenceTable' => $fkData['REF_TABLE_NAME'],
+                    'referenceColumn' => $fkData['REF_COLUMN_NAME'],
+                    'onDelete' => $fkData['ON_DELETE'],
+                ];
+            }
+
+            return $this->definitionAggregator->fromDefinition($definition);
+        }
+
+        // MySQL/MariaDB
         $createTableSql = $this->getCreateTableSql($tableName, $resource);
         $createTableSql['type'] = 'reference';
         return $this->definitionAggregator->fromDefinition($createTableSql);
@@ -238,6 +281,29 @@ class DbSchemaReader implements DbSchemaReaderInterface
     {
         $constraints = [];
         $adapter = $this->resourceConnection->getConnection($resource);
+
+        // SQLite - read constraints from index list (PRIMARY KEY, UNIQUE)
+        if ($adapter instanceof \Magento\Framework\DB\Adapter\Pdo\Sqlite) {
+            $indexData = $adapter->getIndexList($tableName);
+
+            foreach ($indexData as $index) {
+                // Only process PRIMARY and UNIQUE constraints
+                if ($index['INDEX_TYPE'] === 'primary' || $index['INDEX_TYPE'] === 'unique') {
+                    $constraintDef = [
+                        'name' => $index['KEY_NAME'],
+                        'columns' => $index['COLUMNS_LIST'],
+                        'type' => Constraint::TYPE,
+                    ];
+
+                    $constraint = $this->definitionAggregator->fromDefinition($constraintDef);
+                    $constraints[$constraint['name']] = $constraint;
+                }
+            }
+
+            return $constraints;
+        }
+
+        // MySQL/MariaDB
         $condition = sprintf('`Non_unique` = 0');
         $sql = sprintf('SHOW INDEXES FROM `%s` WHERE %s', $tableName, $condition);
         $stmt = $adapter->query($sql);
