@@ -72,6 +72,23 @@ class ForeignKey implements DbDefinitionProcessorInterface
      */
     public function fromDefinition(array $data)
     {
+        // SQLite: Handle pre-parsed foreign_keys array
+        if (isset($data['foreign_keys'])) {
+            $ddl = [];
+            foreach ($data['foreign_keys'] as $fk) {
+                $ddl[$fk['name']] = [
+                    'type' => Reference::TYPE,
+                    'name' => $fk['name'],
+                    'column' => $fk['column'],
+                    'referenceTable' => $fk['referenceTable'],
+                    'referenceColumn' => $fk['referenceColumn'],
+                    'onDelete' => $fk['onDelete'] ?? 'NO ACTION'
+                ];
+            }
+            return $ddl;
+        }
+
+        // MySQL: Parse from SHOW CREATE TABLE output
         if (!isset($data['Create Table'])) {
             throw new LocalizedException(
                 new \Magento\Framework\Phrase('Can`t read foreign keys from current database')
