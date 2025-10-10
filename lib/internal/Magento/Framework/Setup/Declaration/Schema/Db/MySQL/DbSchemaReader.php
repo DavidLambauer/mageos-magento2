@@ -114,13 +114,24 @@ class DbSchemaReader implements DbSchemaReaderInterface
         if ($adapter instanceof \Magento\Framework\DB\Adapter\Pdo\Sqlite) {
             $columnsData = $adapter->describeTable($tableName);
 
+            // Map SQLite types to Magento column definition types
+            $typeMap = [
+                'integer' => 'int',
+                'text' => 'varchar',
+                'real' => 'decimal',
+                'blob' => 'blob',
+            ];
+
             foreach ($columnsData as $columnData) {
+                $sqliteType = strtolower($columnData['DATA_TYPE']);
+                $magentoType = $typeMap[$sqliteType] ?? 'varchar';
+
                 $column = [
                     'name' => $columnData['COLUMN_NAME'],
                     'default' => $columnData['DEFAULT'],
-                    'type' => $columnData['DATA_TYPE'],
+                    'type' => $magentoType,  // Use Magento-compatible type name
                     'nullable' => $columnData['NULLABLE'],
-                    'definition' => $columnData['DATA_TYPE'],
+                    'definition' => $magentoType,
                     'extra' => $columnData['IDENTITY'] ? 'auto_increment' : '',
                     'comment' => '',
                     'charset' => '',
