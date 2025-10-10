@@ -33,7 +33,8 @@ class SqliteQueryRewriter
         'INSERT IGNORE',
         'ON DUPLICATE KEY UPDATE',
         'STRAIGHT_JOIN',
-        'SQL_CALC_FOUND_ROWS'
+        'SQL_CALC_FOUND_ROWS',
+        'SHOW'
     ];
 
     /**
