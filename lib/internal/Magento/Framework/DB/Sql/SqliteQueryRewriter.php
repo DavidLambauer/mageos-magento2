@@ -110,11 +110,14 @@ class SqliteQueryRewriter
         $sql = preg_replace('/COLLATE\s*=\s*\w+/i', '', $sql);
         $sql = preg_replace('/CHARACTER\s+SET\s+\w+/i', '', $sql);
 
-        // Remove column and table comments
+        // Remove column and table comments (handle various whitespace/formats)
         $sql = preg_replace('/COMMENT\s*=\s*\'[^\']*\'/i', '', $sql);
         $sql = preg_replace('/COMMENT\s*=\s*"[^"]*"/i', '', $sql);
         $sql = preg_replace('/COMMENT\s+\'[^\']*\'/i', '', $sql);
         $sql = preg_replace('/COMMENT\s+"[^"]*"/i', '', $sql);
+        // Remove trailing =".." patterns left after COMMENT removal
+        $sql = preg_replace('/\)\s*=\s*"[^"]*"/', ')', $sql);
+        $sql = preg_replace('/\)\s*=\s*\'[^\']*\'/', ')', $sql);
 
         // Remove AUTO_INCREMENT - SQLite uses ROWID auto-increment by default
         // Note: SQLite's AUTOINCREMENT has different syntax (INTEGER PRIMARY KEY AUTOINCREMENT)
