@@ -131,6 +131,14 @@ class SqliteQueryRewriter
         // STRAIGHT_JOIN → JOIN
         $sql = preg_replace('/STRAIGHT_JOIN/i', 'JOIN', $sql);
 
+        // Fix constraint syntax for SQLite
+        // Remove unnamed CONSTRAINT before PRIMARY KEY
+        $sql = preg_replace('/CONSTRAINT\s+PRIMARY\s+KEY/i', 'PRIMARY KEY', $sql);
+        // Remove KEY keyword after UNIQUE (SQLite: UNIQUE, MySQL: UNIQUE KEY)
+        $sql = preg_replace('/UNIQUE\s+KEY/i', 'UNIQUE', $sql);
+        // Remove KEY keyword after INDEX
+        $sql = preg_replace('/INDEX\s+KEY/i', 'INDEX', $sql);
+
         // SHOW commands → return empty/dummy results
         if (preg_match('/^\s*SHOW\s+/i', $sql)) {
             // Replace SHOW with SELECT that returns empty result
